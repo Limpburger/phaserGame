@@ -1,0 +1,14 @@
+{
+  "name": "isometric-app",
+  "version": "1.0.0",
+  "description": "\"isometric map\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "etienne",
+  "license": "ISC",
+  "dependencies": {
+    "phaser": "^3.55.2"
+  }
+}

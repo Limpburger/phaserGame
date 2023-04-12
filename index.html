@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Map</title>
+	<style>
+.tile {
+  width: 30px;
+  height: 30px;
+  border: 1px solid black;
+  position: absolute;
+}
+
+.tile.floor {
+  background-color: white;
+}
+
+.tile.wall {
+  background-color: gray;
+}
+
+.tile.door {
+    background-color: brown;
+}
+	</style>
+</head>
+<body>
+<script></script>
+    <script>
+
+
+//map
+myMap = [
+[1, 1, 1, 1, 1, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 1, 0, 0, 0, 0, 2],
+[1, 0, 0, 0, 0, 1, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 1, 1, 1]
+];
+
+myMap2 = [
+  [1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 0, 0, 1],
+  [2, 0, 1, 0, 0, 0, 0, 2],
+  [1, 0, 0, 0, 0, 1, 1, 1],
+  [1, 0, 0, 0, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1]
+];
+
+game={tileW:30, tileH:30, currentMap:1};
+game.clip = document.createElement('div');
+
+//walkable tile
+game.Tile0 = function () {};
+game.Tile0.prototype.walkable = true;
+game.Tile0.prototype.frame = 1;
+ 
+//wall tile
+game.Tile1 = function () {};
+game.Tile1.prototype.walkable = false;
+game.Tile1.prototype.frame = 2;
+
+//player
+char={xtile:2, ytile:1};
+
+
+function buildMap(map) {
+// canvas
+document.body.innerHTML += '<div id="tiles"></div>';
+  // map
+  var tiles = document.getElementById("tiles");
+  var mapWidth = map[0].length;
+  var mapHeight = map.length;
+  for (var i = 0; i < mapHeight; ++i) {
+    for (var j = 0; j < mapWidth; ++j) {
+      var name = "t_" + i + "_" + j;
+      if (map[i][j] == 2) {
+        game[name] = { walkable: true, frame: 3 };
+      } else {
+        game[name] = new game["Tile" + map[i][j]];
+      }
+      var tile = document.createElement('div');
+      tile.classList.add('tile');
+      if (map[i][j] == 0) {
+        tile.classList.add('floor');
+      } else if (map[i][j] == 1) {
+        tile.classList.add('wall');
+      } else if (map[i][j] == 2) {
+        tile.classList.add('door');
+      }
+      tile.id = name;
+      tile.style.left = (j * game.tileW) + 'px';
+      tile.style.top = (i * game.tileH) + 'px';
+      tile.style.backgroundPosition = '-' + game[name].frame * game.tileW + 'px 0px';
+      tiles.appendChild(tile);
+    }
+  }
+  document.body.appendChild(game.clip);
+  
+//player
+game.clip.appendChild(document.createElement('div'));
+char.clip = game.clip.children[0];
+char.clip.id = "char";
+char.x = (char.xtile * game.tileW) + game.tileW / 2;
+char.y = (char.ytile * game.tileW) + game.tileW / 2;
+char.width = game.tileW / 2;
+char.height = game.tileH / 2;
+char.clip.style.width = char.width + 'px';
+char.clip.style.height = char.height + 'px';
+char.clip.style.backgroundColor = 'red';
+char.clip.style.position = 'absolute';
+char.clip.style.left = char.x - char.width / 2 + 'px';
+char.clip.style.top = char.y - char.height / 2 + 'px';
+
+// append char.clip to game.clip
+game.clip.appendChild(char.clip);
+
+}
+
+buildMap(myMap);
+
+// controls
+document.addEventListener('keydown', function(event) {
+  switch (event.keyCode) {
+    case 37: // Left arrow
+      moveChar(-1, 0);
+      break;
+    case 38: // Up arrow
+      moveChar(0, -1);
+      break;
+    case 39: // Right arrow
+      moveChar(1, 0);
+      break;
+    case 40: // Down arrow
+      moveChar(0, 1);
+      break;
+  }
+});
+
+function moveChar(dx, dy) {
+  var newX = char.xtile + dx;
+  var newY = char.ytile + dy;
+
+  // Check if the new tile is walkable
+  if (game["t_" + newY + "_" + newX].walkable) {
+    // Update the character's position
+    char.xtile = newX;
+    char.ytile = newY;
+    char.x = (char.xtile * game.tileW) + game.tileW / 2;
+    char.y = (char.ytile * game.tileH) + game.tileH / 2;
+    char.clip.style.left = char.x - char.width / 2 + 'px';
+    char.clip.style.top = char.y - char.height / 2 + 'px';
+
+    // Check if the new tile is a door
+    if (game["t_" + newY + "_" + newX].frame == 3) {
+      // If it is a door, change the current map to the next one
+      if (game.currentMap == 1) {
+        buildMap(myMap2);
+        game.currentMap = 2;
+      } else {
+        buildMap(myMap);
+        game.currentMap = 1;
+      }
+    }
+  }
+}
+
+    </script>
+
+</body>
+</html>
